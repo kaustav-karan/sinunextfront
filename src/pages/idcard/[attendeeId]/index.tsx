@@ -21,6 +21,7 @@ const IDValidation = () => {
   const [cardImage, setCardImage] = useState<string>("");
   const { theme, resolvedTheme } = useTheme();
   const cardRef = useRef<HTMLDivElement>(null);
+  const cardWrapperRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -67,7 +68,7 @@ const IDValidation = () => {
 
   useEffect(() => {
     const generateImage = async () => {
-      if (!cardRef.current || !qrToken) return;
+      if (!cardWrapperRef.current || !qrToken) return;
 
       try {
         // Generate QR code first
@@ -83,15 +84,15 @@ const IDValidation = () => {
         // Wait for QR code to be ready
         await new Promise((resolve) => setTimeout(resolve, 100));
 
-        // Generate card image
-        const canvas = await html2canvas(cardRef.current, {
+        // Generate card image with background
+        const canvas = await html2canvas(cardWrapperRef.current, {
           useCORS: true,
           allowTaint: true,
-          backgroundColor: null
+          backgroundColor: "#dfe5f3",
         });
 
         // Convert canvas to data URL
-        const imageUrl = canvas.toDataURL('image/png', 1.0);
+        const imageUrl = canvas.toDataURL("image/png", 1.0);
         setCardImage(imageUrl);
       } catch (error) {
         console.error("Error generating image:", error);
@@ -194,12 +195,17 @@ const IDValidation = () => {
 
             {/* ID Card section */}
             <div className="w-full md:w-auto flex justify-center order-1 md:order-2">
-              <div ref={cardRef} className="w-[400px] transform scale-105 hover:scale-110 transition-transform duration-300 mx-auto">
-                <IdCard
-                  firstName={attendeeData.firstName}
-                  lastName={attendeeData.lastName}
-                  qrData={qrToken}
-                />
+              <div ref={cardWrapperRef} className="p-8  rounded-lg">
+                <div
+                  ref={cardRef}
+                  className="w-[400px] transform scale-105 hover:scale-110 transition-transform duration-300 mx-auto"
+                >
+                  <IdCard
+                    firstName={attendeeData.firstName}
+                    lastName={attendeeData.lastName}
+                    qrData={qrToken}
+                  />
+                </div>
               </div>
             </div>
           </div>
